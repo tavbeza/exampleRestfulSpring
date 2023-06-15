@@ -129,4 +129,20 @@ public class AuthController {
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
 				.body(new MessageResponse("You've been signed out!"));
 	}
+
+	@PostMapping("/delete-account")
+	public ResponseEntity<?> deleteAccount(@Valid @RequestBody LoginRequest loginRequest) {
+		
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		
+		userRepository.deleteById(userDetails.getId());
+		
+		return ResponseEntity.ok().body("User: '" + userDetails.getUsername() + "' has been deleted.");
+	}
+
 }
